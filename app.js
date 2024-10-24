@@ -6,10 +6,9 @@ const fs = require("fs");
 const app = express();
 const port = 3000;
 
-// Set up OpenAI API configuration using the API key directly
+
 const openai = new OpenAI({
- 
- organization: process.env.organization,
+  organization: process.env.organization,
   project:process.env.project,
 });
 
