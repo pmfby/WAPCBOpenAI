@@ -9,8 +9,8 @@ const port = 3000;
 // Set up OpenAI API configuration using the API key directly
 const openai = new OpenAI({
  
- organization:'org-UMWv6oX5tXeQL5pDocMLTes1',
-  project:'proj_d12IRLjlvISSXh5FRB6Ff8aR',
+ organization: process.env.organization,
+  project:process.env.project,
 });
 
 app.use(bodyParser.json());
@@ -21,6 +21,8 @@ app.post('/chat', async (req, res) => {
     //console.log("Env Key",process.env.OPENAI_API_KEY);
   const { userInput } = req.body;
 
+  console.log("Organization",process.env.organization);
+  console.log("project",process.env.project);
   if (!userInput) {
     return res.status(400).send({ message: 'User input is required' });
   }
@@ -41,7 +43,7 @@ app.post('/chat', async (req, res) => {
       max_tokens : 100
     });
 
-    console.log("Response",response)
+    //console.log("Response",response)
     const botResponse = response.choices[0].message.content;
    
     res.status(200).json({ response: botResponse });
