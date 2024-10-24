@@ -55,7 +55,7 @@ app.post('/chat', async (req, res) => {
 // Get Intent
 app.post('/GetIntent', async (req, res) => {
 
-  //console.log("Env Key",process.env.OPENAI_API_KEY);
+ 
 const { userInput } = req.body;
 
 if (!userInput) {
@@ -148,7 +148,7 @@ app.post('/train_by_data', async (req, res) => {
 // Chatbot route
 app.post('/train', async (req, res) => {
 
-    //console.log("Env Key",process.env.OPENAI_API_KEY);
+  
   
   try {
  
