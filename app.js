@@ -8,8 +8,8 @@ const port = 3000;
 
 
 const openai = new OpenAI({
-  organization: process.env.organization,
-  project:process.env.project,
+  //organization: process.env.organization,
+  //project:process.env.project,
 });
 
 app.use(bodyParser.json());
