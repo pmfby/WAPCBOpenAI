@@ -26,17 +26,15 @@ app.post('/chat', async (req, res) => {
   }
 
   try {
-    const prompt = `You are an expert in Crop Insurance. Only respond to questions related to this field including topics like post-harvest losses, crop management, etc. If the question is not relevant with Crop Insurance then respond with: 'I can only assist with PMFBY Scheme & crop insurance-related inquiries.' 
-    Please respond to below prompt : 
-    ${userInput} `;
+    const prompt = `${userInput} `;
     
     console.log("Prompt",prompt);
 
     // Call OpenAI API
     const response = await openai.chat.completions.create({
-      model: 'ft:gpt-4o-mini-2024-07-18:personal:pmfby:AFgyRQBJ',  // Choose the GPT model
+      model: 'ft:gpt-4o-mini-2024-07-18:personal:pmfby:ALKxWo0M',  // Choose the GPT model
       messages: [
-        //{ role: 'system', content: prompt },
+        { role: 'system', content: "You are an expert in Crop Insurance. Only respond as per trained data and to questions related to this field including topics like post-harvest losses, crop management, etc. If the question is not relevant with Crop Insurance then respond with: 'I can only assist with PMFBY Scheme & crop insurance-related inquiries'." },
         { role: 'user', content: prompt },
     ],
       temperature:0,
@@ -53,6 +51,44 @@ app.post('/chat', async (req, res) => {
   }
 });
 
+// Get Intent
+app.post('/GetIntent', async (req, res) => {
+
+  //console.log("Env Key",process.env.OPENAI_API_KEY);
+const { userInput } = req.body;
+
+if (!userInput) {
+  return res.status(400).send({ message: 'User input is required' });
+}
+
+try {
+  const prompt = `${userInput} `;
+  
+  console.log("Prompt",prompt);
+
+  // Call OpenAI API
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o-mini-2024-07-18',  // Choose the GPT model
+    messages: [
+      { role: 'system', content: "You are an assistant that understands intents for crop insurance queries. Extract the words : Claim Status,Policy Status,Insurance Policy,Ticket Status & Crop Loss Intimation Status and also Extract the season (like 'Kharif', 'Rabi') and year (like 2024) from the input as well. I need output in format with proper json object format for example {\"res\": \"Claim Status - Rabi 2024\",\"message\":\"\"},{\"res\": \"Claim Status -\",\"message\":\"Year not specified\"} ,{\"res\": \"- Rabi 2023\",\"message\":\"Do you mean Claim Status/Policy Status/Ticket Status/Insurance Policy/Crop Loss Initimation Status\"} etc." },
+      { role: 'user', content: `${prompt}` },
+  ],
+    temperature:0,
+    max_tokens : 100
+  });
+
+  console.log("Response",response);
+  //const botResponse = response.choices[0].message.content;
+
+  const intent = response.choices[0].message.content;
+  //const intentObj = JSON.parse(intent);
+  //console.log("Intent Object",intentObj);  
+  res.status(200).json(intent);
+} catch (error) {
+  console.error('Error with OpenAI API:', error.message);
+  res.status(500).send({ error: 'An error occurred with the OpenAI API' });
+}
+});
 
 app.post('/train_by_data', async (req, res) => {
 
@@ -161,8 +197,6 @@ app.post('/train', async (req, res) => {
     res.status(500).send({ error: 'An error occurred with the OpenAI API' });
   }
 });
-
-
 
 app.listen(port, () => {
   console.log(`Chatbot server running on http://localhost:${port}`);
