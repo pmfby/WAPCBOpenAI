@@ -128,7 +128,7 @@ app.post('/chat', async (req, res) => {
       const response = await openai.chat.completions.create({
         model: process.env.Model_Name,  // Choose the GPT model
         messages: [
-          { role: 'system', content: "You are an expert in Crop who translates the content for crop insurance queries in language provided." },
+          { role: 'system', content: "You are an expert in Crop who translates the content for crop insurance queries in language provided. like हार्ष मलखानी,संतोष वर्मा and etc." },
           { role: 'user', content: `Please translate the following into ${lang} : ${prompt}` },],
         temperature:0,
         max_tokens : 100
