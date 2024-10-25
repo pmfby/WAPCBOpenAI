@@ -11,6 +11,7 @@ const port = 3000;
 
 if (cluster.isMaster) {
   console.log(`Master ${process.pid} is running`);
+  console.log("Number of vCPU available",numCPUs);
 
   // Fork workers for each CPU
   for (let i = 0; i < numCPUs; i++) {
@@ -31,7 +32,7 @@ const openai = new OpenAI({
 app.use(bodyParser.json());
 
 // Chatbot route
-  app.post('/chat', async (req, res) => {
+app.post('/chat', async (req, res) => {
 
       //console.log("Env Key",process.env.OPENAI_API_KEY);
     const { userInput } = req.body;
@@ -69,7 +70,7 @@ app.use(bodyParser.json());
     }
   });
 
-// Get Intent
+  // Get Intent
   app.post('/GetIntent', async (req, res) => {
 
   
@@ -108,7 +109,7 @@ app.use(bodyParser.json());
   }
   });
 
-  // Get Intent
+  // Get Translator
   app.post('/translator', async (req, res) => {
 
   
@@ -128,26 +129,21 @@ app.use(bodyParser.json());
         model: process.env.Model_Name,  // Choose the GPT model
         messages: [
           { role: 'system', content: "You are an expert in Crop who translates the content for crop insurance queries in language provided." },
-          { role: 'user', content: `Please translate the following into ${lang} : ${prompt}` },
-      ],
+          { role: 'user', content: `Please translate the following into ${lang} : ${prompt}` },],
         temperature:0,
         max_tokens : 100
       });
   
       console.log("Response",response);
       //const botResponse = response.choices[0].message.content;
-  
       const intent = response.choices[0].message.content;
-      //const intentObj = JSON.parse(intent);
-      //console.log("Intent Object",intentObj);  
+       
       res.status(200).json(intent);
     } catch (error) {
       console.error('Error with OpenAI API:', error.message);
       res.status(500).send({ error: 'An error occurred with the OpenAI API' });
     }
     });
-
- 
 
   app.listen(port, () => {
     console.log(`Chatbot server running on http://localhost:${port}`);
