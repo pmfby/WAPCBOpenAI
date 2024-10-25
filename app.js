@@ -108,78 +108,46 @@ app.use(bodyParser.json());
   }
   });
 
-  app.post('/train_by_data', async (req, res) => {
+  // Get Intent
+  app.post('/translator', async (req, res) => {
 
-
+  
+    const { userInput,lang } = req.body;
+  
+    if (!userInput) {
+      return res.status(400).send({ message: 'User input is required' });
+    }
+  
     try {
-
-      const prompt = `
-    
-      Please train yourself as per below Questions and Answers
-
-      """  Question : "What is Pradhan Mantri Fasal Bima Yojana (PMFBY)?" 
-        Answer: "Pradhan Mantri Fasal Bima Yojana (PMFBY) is a Government Scheme that provides crop insurance protection to farmers when notified crops are damaged due to natural calamities."
-        
-        Question : "When was the scheme launched?"
-        Answer: "The PMFBY scheme was launched on 18th February 2016 by the honorable Prime Minister of India."
-        
-        Question: "From which date the revamped PMFBY scheme has come into effect?" 
-        Answer: "The Scheme was revamped in February 2020 and made voluntary for all the farmers for participation."}
-        
-        Question : "Who are eligible to get benefits under the scheme?"
-        Answer : "All farmers, including tenant farmers and sharecroppers cultivating notified crops in notified areas are eligible for crop insurance."
-
-        Question: "Who are not eligible to get benefits under the scheme?"
-        Answer: "Farmers not cultivating notifed crops and farmer groups/collectives are not eligble. Visit- https://pmfby.gov.in for more details"
-
-        Question: "What is crop insurance?"
-        Answer: "Crop insurance is an important risk mitigation tool to protect financial losses of farmers from unforeseen natural calamities like hailstorm, drought, floods, cyclones, heavy and unseasonal rains, attack of disease and pests etc."}
-        
-        Question: "Why farmers should avail crop insurance?"
-        Answer: "An adverse weather/climatic conditions can cause significant damage to standing crops such as heavy rains, floods, hailstones, cloudbursts, landslide and natural fire etc, causing damage to crop partially or wholly. It impacts our hard-working farmers severely, burdening them economically and socially. Therefore, it is imperative to provide economic and social security to the farmers so that they are protected from probable crop loss with the help of crop insurance." 
-
-        """`;
-      //const prompt = `${userInput}`;
+      const prompt = `${userInput} `;
+      
       console.log("Prompt",prompt);
-
+  
       // Call OpenAI API
       const response = await openai.chat.completions.create({
-        model:process.env.Model_Name, 
+        model: process.env.Model_Name,  // Choose the GPT model
         messages: [
-          { role: 'system', content: 'You are pmfby chatbot and answers only on trained data.' },
-          { role: 'user', content: prompt },
+          { role: 'system', content: "You are an expert in Crop who translates the content for crop insurance queries in language provided." },
+          { role: 'user', content: `Please translate the following into ${lang} : ${prompt}` },
       ],
         temperature:0,
-        max_tokens : 4096
+        max_tokens : 100
       });
-
-      console.log("Response",response)
-      const botResponse = response.choices[0].message.content;
-    
-      res.status(200).json({ response: botResponse });
-    } catch (error) {
-      console.error('Error with OpenAI API:', error.message);
-      res.status(500).send({ error: 'An error occurred with the OpenAI API' });
-    }
-  });
-// Chatbot route
-  app.post('/train', async (req, res) => {
-
-    
-    
-    try {
   
-      const response = await openai.files.create({ file: fs.createReadStream('training.jsonl'), purpose: 'fine-tune' });
-
-      console.log("Response",response)
-      const botResponse = response;
-    
-      res.status(200).json({ response: botResponse });
+      console.log("Response",response);
+      //const botResponse = response.choices[0].message.content;
+  
+      const intent = response.choices[0].message.content;
+      //const intentObj = JSON.parse(intent);
+      //console.log("Intent Object",intentObj);  
+      res.status(200).json(intent);
     } catch (error) {
       console.error('Error with OpenAI API:', error.message);
       res.status(500).send({ error: 'An error occurred with the OpenAI API' });
     }
-  });
+    });
+
+ 
 
   app.listen(port, () => {
     console.log(`Chatbot server running on http://localhost:${port}`);
