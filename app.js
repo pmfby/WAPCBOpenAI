@@ -112,9 +112,8 @@ app.post('/chat', async (req, res) => {
   // Get Translator
   app.post('/translator', async (req, res) => {
 
-  
     const { userInput,lang } = req.body;
-  
+    
     if (!userInput) {
       return res.status(400).send({ message: 'User input is required' });
     }
@@ -128,8 +127,8 @@ app.post('/chat', async (req, res) => {
       const response = await openai.chat.completions.create({
         model: process.env.Model_Name,  // Choose the GPT model
         messages: [
-          { role: 'system', content: "You are an expert in Crop who translates the content for crop insurance queries in language provided. like हार्ष मलखानी,संतोष वर्मा and etc." },
-          { role: 'user', content: `Please translate the following into ${lang} : ${prompt}` },],
+          { role: 'system', content: "You are an expert in Crop and language translation for crop insurance queries." },
+          { role: 'user', content: `Please translate the following prompt """${prompt}""" into ${lang} language without any extra modifications. Provide only the translation, no additional text` },],
         temperature:0,
         max_tokens : 100
       });
