@@ -144,6 +144,42 @@ app.post('/chat', async (req, res) => {
     }
     });
 
+  app.post('/crophealth', async (req, res) => {
+        try {
+         
+          const { imageUrl } = req.body;
+          // Call OpenAI API
+          const response = await openai.chat.completions.create({
+            model: "gpt-4-turbo",  // Choose the GPT model
+            messages: [
+              {
+                role: "user",
+                content: [
+                  { type: "text", text: "Please respond in this format  {IsCrop : true/false, CropName : crop_name,CropHealth : crop_health, CropStage : crop_stage, Natural Disaster : natural_disaster,Infected : infection_summary,ImageMetaData : image_meta_data } only and in agriculture insurance expert tone.Also Please mention if the crop hit by any natural disaster and infect infestations. Respond for crop images only." },
+                  {
+                    type: "image_url",
+                    image_url: {
+                      "url": `${imageUrl}`,
+                    },
+                  },
+                ],
+              },
+            ],            
+            temperature:0,
+            max_tokens : 100
+          });
+      
+          console.log("Response",response);
+          //const botResponse = response.choices[0].message.content;
+          const imageResult = response.choices[0].message.content;
+          
+          res.status(200).json(imageResult);
+        } catch (error) {
+          console.error('Error with OpenAI API:', error.message);
+          res.status(500).send({ error: 'An error occurred with the OpenAI API' });
+        }
+    });
+
   app.listen(port, () => {
     console.log(`Chatbot server running on http://localhost:${port}`);
   });
