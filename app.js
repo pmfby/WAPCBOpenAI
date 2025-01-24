@@ -8,6 +8,7 @@ const { OpenAI  } = require('openai');
 const app = express();
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const { NlpManager } = require('node-nlp');
 const port = 3000;
 
 // Swagger configuration options
@@ -34,9 +35,147 @@ const swaggerOptions = {
   apis: ["./*.js"]  // Update this path if needed
 };
 
+// Initialize the NLP manager
+const manager = new NlpManager({ languages: ['en'], forceNER: true });
+
 // Initialize Swagger docs
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+
+
+// General Information
+manager.addDocument('en', 'What is the objective of the PMFBY scheme?', 'pmfby.objective');
+manager.addDocument('en', 'Why was PMFBY launched?', 'pmfby.objective');
+manager.addAnswer(
+  'en',
+  'pmfby.objective',
+  'The objective of PMFBY is to provide financial support to farmers suffering crop loss due to natural calamities, stabilize farmer income, encourage modern agricultural practices, and ensure creditworthiness.'
+);
+
+manager.addDocument('en', 'What is PMFBY?', 'pmfby.info');
+manager.addDocument('en', 'What does PMFBY stand for?', 'pmfby.info');
+manager.addAnswer(
+  'en',
+  'pmfby.info',
+  'PMFBY stands for Pradhan Mantri Fasal Bima Yojana, a crop insurance scheme launched to support farmers by covering risks to their crops caused by natural calamities.'
+);
+
+manager.addDocument('en', 'When was PMFBY launched?', 'pmfby.launchDate');
+manager.addDocument('en', 'What is the launch date of PMFBY?', 'pmfby.launchDate');
+manager.addAnswer(
+  'en',
+  'pmfby.launchDate',
+  'PMFBY was launched on 18th February 2016.'
+);
+
+manager.addDocument('en', 'When did the revamped guidelines come into effect?', 'pmfby.revampDate');
+manager.addDocument('en', 'What is the effective date of the revamped PMFBY?', 'pmfby.revampDate');
+manager.addAnswer(
+  'en',
+  'pmfby.revampDate',
+  'The revamped guidelines came into effect from Kharif 2023.'
+);
+
+// Risks Covered
+manager.addDocument('en', 'What risks are covered under PMFBY?', 'pmfby.risks');
+manager.addDocument('en', 'Does PMFBY cover pest attacks?', 'pmfby.risks');
+manager.addAnswer(
+  'en',
+  'pmfby.risks',
+  'PMFBY covers risks such as drought, flood, cyclone, hailstorm, pest attacks, and diseases from the sowing to post-harvest stage.'
+);
+
+// Eligibility
+manager.addDocument('en', 'Who is eligible for PMFBY?', 'pmfby.eligibility');
+manager.addDocument('en', 'Are tenant farmers eligible for PMFBY?', 'pmfby.eligibility');
+manager.addAnswer(
+  'en',
+  'pmfby.eligibility',
+  'All farmers, including tenant farmers and sharecroppers cultivating notified crops in notified areas, are eligible for PMFBY.'
+);
+
+manager.addDocument('en', 'What are the exclusions under PMFBY?', 'pmfby.exclusions');
+manager.addAnswer(
+  'en',
+  'pmfby.exclusions',
+  'PMFBY does not cover losses arising from war, nuclear risks, malicious damage, or preventable risks.'
+);
+
+// Premium and Subsidy
+manager.addDocument('en', 'What is the premium structure under PMFBY?', 'pmfby.premium');
+manager.addDocument('en', 'How much premium do farmers pay under PMFBY?', 'pmfby.premium');
+manager.addAnswer(
+  'en',
+  'pmfby.premium',
+  'Farmers pay 2% of the sum insured for Kharif crops, 1.5% for Rabi crops, and 5% for commercial or horticultural crops. The balance premium is shared by the government.'
+);
+
+// Claims and Grievances
+manager.addDocument('en', 'How can a farmer file a claim under PMFBY?', 'pmfby.fileClaim');
+manager.addDocument('en', 'What is the claim filing process for PMFBY?', 'pmfby.fileClaim');
+manager.addAnswer(
+  'en',
+  'pmfby.fileClaim',
+  'Farmers can file claims by reporting crop loss to their insurance company, local agriculture department, or CSC within 72 hours of the event.'
+);
+
+manager.addDocument('en', 'What is the grievance redressal mechanism in PMFBY?', 'pmfby.grievance');
+manager.addAnswer(
+  'en',
+  'pmfby.grievance',
+  'Farmers can register grievances through the Krishi Rakshak Portal, helplines, or designated offices. The scheme has a structured grievance redressal mechanism at the district, state, and national levels.'
+);
+
+// Add-On Coverage
+manager.addDocument('en', 'What is the add-on coverage for wild animal attacks under PMFBY?', 'pmfby.wildAnimals');
+manager.addAnswer(
+  'en',
+  'pmfby.wildAnimals',
+  'PMFBY offers add-on coverage for crop loss due to wild animal attacks, but the premium for this is fully borne by the farmer unless subsidized by the state government.'
+);
+
+// Implementation and Technology
+manager.addDocument('en', 'What is the role of technology in PMFBY?', 'pmfby.technology');
+manager.addDocument('en', 'How is technology used in PMFBY?', 'pmfby.technology');
+manager.addAnswer(
+  'en',
+  'pmfby.technology',
+  'PMFBY uses technology such as satellite imagery, drones, and mobile apps for monitoring crops, assessing losses, and ensuring transparency in implementation.'
+);
+
+// Enrollment
+manager.addDocument('en', 'How can farmers enroll in PMFBY?', 'pmfby.enrollment');
+manager.addDocument('en', 'What is the enrollment process for PMFBY?', 'pmfby.enrollment');
+manager.addAnswer(
+  'en',
+  'pmfby.enrollment',
+  'Farmers can enroll in PMFBY through banks, CSCs, or the National Crop Insurance Portal (NCIP) before the cut-off date for each season.'
+);
+
+// Claim Settlement
+manager.addDocument('en', 'What is the process for claim settlement under PMFBY?', 'pmfby.claimSettlement');
+manager.addAnswer(
+  'en',
+  'pmfby.claimSettlement',
+  'Claims under PMFBY are processed based on yield data and crop loss reports submitted by the state government. Payments are made directly to the farmer’s bank account.'
+);
+
+// Fallback for unrelated questions
+manager.addAnswer(
+  'en',
+  'None',
+  'I can only assist with PMFBY Scheme & crop insurance-related inquiries. Please ask questions specific to these topics.'
+);
+
+// Train the NLP model
+(async () => {
+  console.log('Training the chatbot...');
+  await manager.train();
+  manager.save();
+  console.log('Chatbot training completed!');
+})();
+
 
 if (cluster.isMaster) {
   console.log(`Master ${process.pid} is running`);
@@ -535,6 +674,29 @@ app.post('/api/v2/GetIntent', (req, res) => {
 
   const results = extractDetails(query);
   res.json(results);
+});
+
+// Define the API endpoint
+app.post('/api/chat', async (req, res) => {
+  try {
+    const { query } = req.body;
+
+    if (!query) {
+      return res.status(400).json({ error: 'Query is required.' });
+    }
+
+    // Process the user query with the NLP manager
+    const response = await manager.process('en', query);
+
+    // Respond with the chatbot's answer
+    res.json({
+      question: query,
+      answer: response.answer || 'I can only assist with PMFBY Scheme & crop insurance-related inquiries.',
+    });
+  } catch (error) {
+    console.error('Error processing query:', error);
+    res.status(500).json({ error: 'An error occurred while processing your request.' });
+  }
 });
 
   app.listen(port, () => {
