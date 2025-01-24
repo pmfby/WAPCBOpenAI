@@ -177,7 +177,7 @@ manager.addDocument('en', 'How much compensation is given for mid-season adversi
 manager.addDocument('en', 'What percentage of the claim is paid for mid-season adversity?', 'pmfby.midSeasonPercentage');
 manager.addAnswer(
   'en',
-  'pmfby.midSeasonPercentage',
+  'pmfby.midSeasonPercentage',     
   'Under PMFBY, up to 25% of the sum insured is paid as compensation for mid-season adversity to provide immediate relief to farmers.'
 );
 
@@ -704,6 +704,47 @@ app.post('/chat', async (req, res) => {
     });
 
 
+    /**
+ * @swagger
+ * /api/v2/GetIntent:
+ *   post:
+ *     summary: Extract details from the user query
+ *     description: This endpoint processes the user's query to extract specific intent and details using the extractDetails function.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               query:
+ *                 type: string
+ *                 description: The user's input query to extract intent.
+ *                 example: "What is my claim status for Kharif 2024?"
+ *     responses:
+ *       200:
+ *         description: Successfully extracted details from the query
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 details:
+ *                   type: object
+ *                   description: Extracted details from the query.
+ *                   example: { "intent": "ClaimStatus", "season": "Kharif", "year": "2024" }
+ *       400:
+ *         description: Bad request. Query is required and must be a string.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message for invalid input.
+ *                   example: "Invalid input. Please provide a query."
+ */
     // API endpoint to process input
 app.post('/api/v2/GetIntent', (req, res) => {
   const { query } = req.body;
@@ -715,6 +756,63 @@ app.post('/api/v2/GetIntent', (req, res) => {
   const results = extractDetails(query);
   res.json(results);
 });
+
+/**
+ * @swagger
+ * /api/v2/chat:
+ *   post:
+ *     summary: Get a response from the crop insurance chatbot
+ *     description: This endpoint sends a user query to the NLP manager, which is configured to respond with crop insurance-related information based on trained data. Only relevant queries regarding crop insurance will receive detailed responses.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               query:
+ *                 type: string
+ *                 description: The user's input query related to crop insurance.
+ *                 example: "What are the post-harvest loss benefits under the PMFBY scheme?"
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved response from the chatbot
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 question:
+ *                   type: string
+ *                   description: The user's input query.
+ *                   example: "What are the post-harvest loss benefits under the PMFBY scheme?"
+ *                 answer:
+ *                   type: string
+ *                   description: The chatbot's response based on crop insurance data.
+ *                   example: "Under PMFBY, post-harvest losses due to natural calamities are covered, providing farmers with compensation."
+ *       400:
+ *         description: Bad request. Query is required.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message for missing user query.
+ *                   example: "Query is required."
+ *       500:
+ *         description: Internal server error. There was an issue processing the query.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message for server-side issues.
+ *                   example: "An error occurred while processing your request."
+ */
 
 // Define the API endpoint
 app.post('/api/v2/chat', async (req, res) => {
