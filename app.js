@@ -116,6 +116,81 @@ app.use(bodyParser.json());
  *                   example: "An error occurred with the OpenAI API"
  */
 
+// Define valid keywords and synonyms
+const keywords = [
+  { main: 'Claim Status', synonyms: ['claim status'] },
+  { main: 'Policy Status', synonyms: ['policy status', 'crop insurance'] },
+  { main: 'Ticket Status', synonyms: ['ticket status'] },
+  { main: 'Insurance Policy', synonyms: ['insurance policy', 'crop insurance'] },
+  { main: 'Crop Loss Intimation Status', synonyms: ['crop loss intimation status'] },
+];
+const seasons = ['Kharif', 'Rabi'];
+
+// Helper function to extract keywords, seasons, and years
+function extractDetails(input) {
+  const results = [];
+  let foundKeyword = null;
+  let foundSeason = null;
+  let foundYear = null;
+
+  // Check for keywords and their synonyms
+  for (const keyword of keywords) {
+    if (
+      keyword.synonyms.some((synonym) =>
+        input.toLowerCase().includes(synonym.toLowerCase())
+      )
+    ) {
+      foundKeyword = keyword.main;
+      break;
+    }
+  }
+
+  // Check for seasons
+  for (const season of seasons) {
+    if (input.toLowerCase().includes(season.toLowerCase())) {
+      foundSeason = season;
+      break;
+    }
+  }
+
+  // Extract year (4-digit number)
+  const yearMatch = input.match(/\b(20[0-9]{2})\b/);
+  if (yearMatch) {
+    foundYear = yearMatch[1];
+  }
+
+  // Construct results
+  if (foundKeyword && foundSeason && foundYear) {
+    results.push({
+      res: `${foundKeyword} - ${foundSeason} ${foundYear}`,
+      message: '',
+    });
+  } else if (foundKeyword && foundSeason) {
+    results.push({
+      res: `${foundKeyword} - ${foundSeason}`,
+      message: 'Year not specified',
+    });
+  } else if (foundKeyword && foundYear) {
+    results.push({
+      res: `${foundKeyword} - ${foundYear}`,
+      message: 'Season not specified',
+    });
+  } else if (foundSeason && foundYear) {
+    results.push({
+      res: `- ${foundSeason} ${foundYear}`,
+      message:
+        'Do you mean Claim Status/Policy Status/Ticket Status/Insurance Policy/Crop Loss Intimation Status?',
+    });
+  } else {
+    results.push({
+      res: '',
+      message: 'Could not extract a valid keyword, season, or year.',
+    });
+  }
+
+  return results;
+}
+
 // Chatbot route
 app.post('/chat', async (req, res) => {
 
@@ -448,6 +523,19 @@ app.post('/chat', async (req, res) => {
           res.status(500).send({ error: 'An error occurred with the OpenAI API' });
         }
     });
+
+
+    // API endpoint to process input
+app.post('/api/v2/GetIntent', (req, res) => {
+  const { query } = req.body;
+
+  if (!query || typeof query !== 'string') {
+    return res.status(400).json({ error: 'Invalid input. Please provide a query.' });
+  }
+
+  const results = extractDetails(query);
+  res.json(results);
+});
 
   app.listen(port, () => {
     console.log(`Chatbot server running on http://localhost:${port}`);
