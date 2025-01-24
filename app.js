@@ -717,7 +717,7 @@ app.post('/api/v2/GetIntent', (req, res) => {
 });
 
 // Define the API endpoint
-app.post('/api/chat', async (req, res) => {
+app.post('/api/v2/chat', async (req, res) => {
   try {
     const { query } = req.body;
 
