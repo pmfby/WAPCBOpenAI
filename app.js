@@ -16,15 +16,15 @@ const swaggerOptions = {
   swaggerDefinition: {
     openapi: "3.0.0",
     info: {
-      title: "WAP Chatbot NLP API",
+      title: "WAP Chatbot NLP",
       version: "1.0.0",
       description: "API Documentation for Your WAP Chatbot NLP API Application",
     
     },
     servers: [
       {
-        url: `http://localhost:${port}`,
-        description: "Development server"
+        url: `http://10.128.60.9:3010/`,
+        description: "UAT server"
       }
     ]
   },
