@@ -18,11 +18,8 @@ const swaggerOptions = {
     info: {
       title: "Your API",
       version: "1.0.0",
-      description: "API Documentation for Your Node.js Application",
-      contact: {
-        name: "Developer Name",
-        email: "developer@example.com"
-      }
+      description: "API Documentation for Your WAP Chatbot NLP API Application",
+    
     },
     servers: [
       {
