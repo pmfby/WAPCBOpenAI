@@ -257,10 +257,10 @@ app.use(bodyParser.json());
 
 // Define valid keywords and synonyms
 const keywords = [
-  { main: 'Claim Status', synonyms: ['claim status'] },
+  { main: 'Claim Status', synonyms: ['claim status','claim'] },
   { main: 'Policy Status', synonyms: ['policy status', 'crop insurance'] },
   { main: 'Ticket Status', synonyms: ['ticket status'] },
-  { main: 'Insurance Policy', synonyms: ['insurance policy', 'crop insurance'] },
+  { main: 'Insurance Policy', synonyms: ['insurance policy', 'crop insurance','policy'] },
   { main: 'Crop Loss Intimation Status', synonyms: ['crop loss intimation status'] },
 ];
 const seasons = ['Kharif', 'Rabi'];
