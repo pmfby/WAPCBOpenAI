@@ -161,6 +161,46 @@ manager.addAnswer(
   'Claims under PMFBY are processed based on yield data and crop loss reports submitted by the state government. Payments are made directly to the farmer’s bank account.'
 );
 
+// Mid-Season Adversity
+manager.addDocument('en', 'What is mid-season adversity in PMFBY?', 'pmfby.midSeason');
+manager.addDocument('en', 'Does PMFBY cover mid-season adversities?', 'pmfby.midSeason');
+manager.addDocument('en', 'How can farmers report mid-season adversities?', 'pmfby.midSeason');
+manager.addDocument('en', 'What is the compensation process for mid-season adversity?', 'pmfby.midSeason');
+manager.addAnswer(
+  'en',
+  'pmfby.midSeason',
+  'Mid-season adversity refers to crop losses caused by extreme weather conditions like drought or flood after sowing but before the crop matures. Farmers can report such adversities to the insurance company or local authorities. Compensation is based on crop damage assessment and is disbursed accordingly.'
+);
+
+// Percentage of Claims for Mid-Season Adversity
+manager.addDocument('en', 'How much compensation is given for mid-season adversity under PMFBY?', 'pmfby.midSeasonPercentage');
+manager.addDocument('en', 'What percentage of the claim is paid for mid-season adversity?', 'pmfby.midSeasonPercentage');
+manager.addAnswer(
+  'en',
+  'pmfby.midSeasonPercentage',
+  'Under PMFBY, up to 25% of the sum insured is paid as compensation for mid-season adversity to provide immediate relief to farmers.'
+);
+
+// Post-Harvesting
+manager.addDocument('en', 'What is post-harvest coverage under PMFBY?', 'pmfby.postHarvest');
+manager.addDocument('en', 'Does PMFBY cover losses during the post-harvest stage?', 'pmfby.postHarvest');
+manager.addDocument('en', 'How can farmers file claims for post-harvest losses?', 'pmfby.postHarvest');
+manager.addDocument('en', 'What types of risks are covered in the post-harvest stage?', 'pmfby.postHarvest');
+manager.addAnswer(
+  'en',
+  'pmfby.postHarvest',
+  'Post-harvest coverage under PMFBY protects farmers from crop losses caused by natural calamities like cyclones, unseasonal rains, and hailstorms during the harvesting period. Farmers must report losses within 72 hours to claim compensation.'
+);
+
+// Percentage of Claims for Post-Harvest Losses
+manager.addDocument('en', 'How much compensation is given for post-harvest losses under PMFBY?', 'pmfby.postHarvestPercentage');
+manager.addDocument('en', 'What percentage of the claim is paid for post-harvest losses?', 'pmfby.postHarvestPercentage');
+manager.addAnswer(
+  'en',
+  'pmfby.postHarvestPercentage',
+  'Under PMFBY, the entire sum insured is payable for post-harvest losses, subject to the terms and conditions of the scheme.'
+);
+
 // Fallback for unrelated questions
 manager.addAnswer(
   'en',
