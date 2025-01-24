@@ -294,13 +294,13 @@ app.use(bodyParser.json());
 
 // Define valid keywords and synonyms
 const keywords = [
-  { main: 'Claim Status', synonyms: ['claim status','claim'] },
-  { main: 'Policy Status', synonyms: ['policy status', 'crop insurance'] },
-  { main: 'Ticket Status', synonyms: ['ticket status'] },
-  { main: 'Insurance Policy', synonyms: ['insurance policy', 'crop insurance','policy'] },
-  { main: 'Crop Loss Intimation Status', synonyms: ['crop loss intimation status'] },
+  { main: 'Claim Status', synonyms: ['claim status','claim','दावा स्थिति','दाव्याची स्थिती', 'क्लेम स्टेटस','ଦାବୀ ସ୍ଥିତି', 'କ୍ଲେମ୍ ସ୍ଥିତି'] },
+  { main: 'Policy Status', synonyms: ['policy status', 'crop insurance','पॉलिसी स्टेटस', 'फसल बीमा','पॉलिसी स्थिती','पॉलिसी','विमा पॉलिसी','ନୀତି ସ୍ଥିତି', 'ବୀମା ପଲିସୀ'] },
+  { main: 'Ticket Status', synonyms: ['ticket status','टिकट स्थिति', 'टिकट स्टेटस','तिकीट स्थिती', 'तिकिट स्टेटस','ଟିକେଟ ସ୍ଥିତି', 'ଟିକେଟ ଷ୍ଟେଟସ'] },
+  { main: 'Insurance Policy', synonyms: ['insurance policy', 'crop insurance','policy','बीमा पॉलिसी', 'फसल बीमा','विमा पॉलिसी', 'पिक विमा','ବୀମା ପଲିସୀ', 'ପିକ୍ ବୀମା'] },
+  { main: 'Crop Loss Intimation Status', synonyms: ['crop loss intimation status','loss initimation','फसल हानि सूचना स्थिति', 'फसल हानि स्टेटस','पिक नुकसानीची सूचना स्थिती', 'पिक हानी स्थिती','ପିକ କ୍ଷତି ସୂଚନା ସ୍ଥିତି', 'କ୍ଷତି ସ୍ଥିତି'] },
 ];
-const seasons = ['Kharif', 'Rabi'];
+const seasons = [{main :'Kharif',synonyms:['Kharif','खरीफ','ଖରିଫ']}, {main: 'Rabi',synonyms:['Rabi', 'रबी', 'ରବି']}];
 
 // Helper function to extract keywords, seasons, and years
 function extractDetails(input) {
@@ -321,10 +321,21 @@ function extractDetails(input) {
     }
   }
 
-  // Check for seasons
+  // // Check for seasons
+  // for (const season of seasons) {
+  //   if (input.toLowerCase().includes(season.toLowerCase())) {
+  //     foundSeason = season;
+  //     break;
+  //   }
+  // }
+
   for (const season of seasons) {
-    if (input.toLowerCase().includes(season.toLowerCase())) {
-      foundSeason = season;
+    if (
+      season.synonyms.some((synonym) =>
+        input.toLowerCase().includes(synonym.toLowerCase())
+      )
+    ) {
+      foundSeason = season.main;
       break;
     }
   }
