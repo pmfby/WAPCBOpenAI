@@ -16,7 +16,7 @@ const swaggerOptions = {
   swaggerDefinition: {
     openapi: "3.0.0",
     info: {
-      title: "Your API",
+      title: "WAP Chatbot NLP API",
       version: "1.0.0",
       description: "API Documentation for Your WAP Chatbot NLP API Application",
     
