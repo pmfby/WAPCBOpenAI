@@ -5,6 +5,10 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const { OpenAI  } = require('openai');
+const translate = require('google-translate-api-x');
+const DetectLanguage = require('detectlanguage');
+const cld3  = require('cld3-asm');
+
 const app = express();
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
@@ -219,7 +223,7 @@ if (cluster.isMaster) {
   console.log("Number of vCPU available",numCPUs);
 
   // Fork workers for each CPU
-  for (let i = 0; i < numCPUs; i++) {
+  for (let i = 0; i < 5; i++) {
     cluster.fork();
   }
 
@@ -293,129 +297,132 @@ app.use(bodyParser.json());
  */
 
 // Define valid keywords and synonyms
-const keywords = [
-  { main: 'Claim Status', synonyms: ['claim status','claim','दावा स्थिति','दाव्याची स्थिती', 'क्लेम स्टेटस','ଦାବୀ ସ୍ଥିତି', 'କ୍ଲେମ୍ ସ୍ଥିତି'] },
-  { main: 'Policy Status', synonyms: ['policy status', 'crop insurance','पॉलिसी स्टेटस', 'फसल बीमा','पॉलिसी स्थिती','पॉलिसी','विमा पॉलिसी','ନୀତି ସ୍ଥିତି', 'ବୀମା ପଲିସୀ'] },
-  { main: 'Ticket Status', synonyms: ['ticket status','टिकट स्थिति', 'टिकट स्टेटस','तिकीट स्थिती', 'तिकिट स्टेटस','ଟିକେଟ ସ୍ଥିତି', 'ଟିକେଟ ଷ୍ଟେଟସ'] },
-  { main: 'Insurance Policy', synonyms: ['insurance policy', 'crop insurance','policy','बीमा पॉलिसी', 'फसल बीमा','विमा पॉलिसी', 'पिक विमा','ବୀମା ପଲିସୀ', 'ପିକ୍ ବୀମା'] },
-  { main: 'Crop Loss Intimation Status', synonyms: ['crop loss intimation status','loss initimation','फसल हानि सूचना स्थिति', 'फसल हानि स्टेटस','पिक नुकसानीची सूचना स्थिती', 'पिक हानी स्थिती','ପିକ କ୍ଷତି ସୂଚନା ସ୍ଥିତି', 'କ୍ଷତି ସ୍ଥିତି'] },
-];
-const seasons = [{main :'Kharif',synonyms:['Kharif','खरीफ','ଖରିଫ']}, {main: 'Rabi',synonyms:['Rabi', 'रबी', 'ରବି']}];
+  const keywords = [
+    { main: 'Claim Status', synonyms: ['claim status','claim','दावा स्थिति','दाव्याची स्थिती','क्लेम', 'क्लेम स्टेटस','ଦାବୀ ସ୍ଥିତି','କ୍ଲେମ୍', 'କ୍ଲେମ୍ ସ୍ଥିତି'] },
+    { main: 'Policy Status', synonyms: ['policy status', 'crop insurance','पॉलिसी स्टेटस', 'फसल बीमा','पॉलिसी स्थिती','पॉलिसी','विमा पॉलिसी','ନୀତି ସ୍ଥିତି', 'ବୀମା ପଲିସୀ'] },
+    { main: 'Ticket Status', synonyms: ['ticket status','टिकट स्थिति', 'टिकट स्टेटस','तिकीट स्थिती', 'तिकिट स्टेटस','ଟିକେଟ ସ୍ଥିତି', 'ଟିକେଟ ଷ୍ଟେଟସ'] },
+    { main: 'Insurance Policy', synonyms: ['insurance policy', 'crop insurance','policy','बीमा पॉलिसी', 'फसल बीमा','विमा पॉलिसी', 'पिक विमा','ବୀମା ପଲିସୀ', 'ପିକ୍ ବୀମା'] },
+    { main: 'Crop Loss Intimation Status', synonyms: ['crop loss intimation status','loss initimation','फसल हानि सूचना स्थिति', 'फसल हानि स्टेटस','पिक नुकसानीची सूचना स्थिती', 'पिक हानी स्थिती','ପିକ କ୍ଷତି ସୂଚନା ସ୍ଥିତି', 'କ୍ଷତି ସ୍ଥିତି'] },
+  ];
+  const seasons = [{main :'Kharif',synonyms:['Kharif','खरीफ','ଖରିଫ']}, {main: 'Rabi',synonyms:['Rabi', 'रबी', 'ରବି']}];
 
-// Helper function to extract keywords, seasons, and years
-function extractDetails(input) {
-  const results = [];
-  let foundKeyword = null;
-  let foundSeason = null;
-  let foundYear = null;
-
-  // Check for keywords and their synonyms
-  for (const keyword of keywords) {
-    if (
-      keyword.synonyms.some((synonym) =>
-        input.toLowerCase().includes(synonym.toLowerCase())
-      )
-    ) {
-      foundKeyword = keyword.main;
-      break;
-    }
-  }
-
-  // // Check for seasons
-  // for (const season of seasons) {
-  //   if (input.toLowerCase().includes(season.toLowerCase())) {
-  //     foundSeason = season;
-  //     break;
-  //   }
-  // }
-
-  for (const season of seasons) {
-    if (
-      season.synonyms.some((synonym) =>
-        input.toLowerCase().includes(synonym.toLowerCase())
-      )
-    ) {
-      foundSeason = season.main;
-      break;
-    }
-  }
-
-  // Extract year (4-digit number)
-  const yearMatch = input.match(/\b(20[0-9]{2})\b/);
-  if (yearMatch) {
-    foundYear = yearMatch[1];
-  }
-
-  // Construct results
-  if (foundKeyword && foundSeason && foundYear) {
-    results.push({
-      res: `${foundKeyword} - ${foundSeason} ${foundYear}`,
-      message: '',
-    });
-  } else if (foundKeyword && foundSeason) {
-    results.push({
-      res: `${foundKeyword} - ${foundSeason}`,
-      message: 'Year not specified',
-    });
-  } else if (foundKeyword && foundYear) {
-    results.push({
-      res: `${foundKeyword} - ${foundYear}`,
-      message: 'Season not specified',
-    });
-  } else if (foundSeason && foundYear) {
-    results.push({
-      res: `- ${foundSeason} ${foundYear}`,
-      message:
-        'Do you mean Claim Status/Policy Status/Ticket Status/Insurance Policy/Crop Loss Intimation Status?',
-    });
-  } else {
-    results.push({
-      res: '',
-      message: 'Could not extract a valid keyword, season, or year.',
-    });
-  }
-
-  return results;
-}
-
-// Chatbot route
-app.post('/chat', async (req, res) => {
-
-      //console.log("Env Key",process.env.OPENAI_API_KEY);
-    const { userInput } = req.body;
-
-    console.log("Organization",process.env.organization);
-    console.log("project",process.env.project);
-    if (!userInput) {
-      return res.status(400).send({ message: 'User input is required' });
-    }
-
+ 
+  // Translation helper function
+  async function translateText(text, targetLang) {
     try {
-      const prompt = `${userInput} `;
-      
-      console.log("Prompt",prompt);
-
-      // Call OpenAI API
-      const response = await openai.chat.completions.create({
-        model: process.env.Model_Name,  // Choose the GPT model
-        messages: [
-          { role: 'system', content: "You are an expert in Crop Insurance. Only respond as per trained data and to questions related to this field including topics like post-harvest losses, crop management, etc. If the question is not relevant with Crop Insurance then respond with: 'I can only assist with PMFBY Scheme & crop insurance-related inquiries'." },
-          { role: 'user', content: prompt },
-      ],
-        temperature:0,
-        max_tokens : 100
-      });
-
-      //console.log("Response",response)
-      const botResponse = response.choices[0].message.content;
-      
-      console.log("Status","Success");
-      res.status(200).json({ response: botResponse });
+      const result = await translate(text, { to: targetLang });
+      return result.text;
     } catch (error) {
-      console.error('Error with OpenAI API:', error.message);
-      res.status(500).send({ error: 'An error occurred with the OpenAI API' });
+      console.error('Translation Error:', error);
+      return 'Translation failed.';
     }
-  });
+  }
+  // Helper function to extract keywords, seasons, and years
+  function extractDetails(input) {
+    const results = [];
+    let foundKeyword = null;
+    let foundSeason = null;
+    let foundYear = null;
+
+    // Check for keywords and their synonyms
+    for (const keyword of keywords) {
+      if (
+        keyword.synonyms.some((synonym) =>
+          input.toLowerCase().includes(synonym.toLowerCase())
+        )
+      ) {
+        foundKeyword = keyword.main;
+        break;
+      }
+    }
+
+    for (const season of seasons) {
+      if (
+        season.synonyms.some((synonym) =>
+          input.toLowerCase().includes(synonym.toLowerCase())
+        )
+      ) {
+        foundSeason = season.main;
+        break;
+      }
+    }
+
+    // Extract year (4-digit number)
+    const yearMatch = input.match(/\b(20[0-9]{2})\b/);
+    if (yearMatch) {
+      foundYear = yearMatch[1];
+    }
+
+    // Construct results
+    if (foundKeyword && foundSeason && foundYear) {
+      results.push({
+        res: `${foundKeyword} - ${foundSeason} ${foundYear}`,
+        message: '',
+      });
+    } else if (foundKeyword && foundSeason) {
+      results.push({
+        res: `${foundKeyword} - ${foundSeason}`,
+        message: 'Year not specified',
+      });
+    } else if (foundKeyword && foundYear) {
+      results.push({
+        res: `${foundKeyword} - ${foundYear}`,
+        message: 'Season not specified',
+      });
+    } else if (foundSeason && foundYear) {
+      results.push({
+        res: `- ${foundSeason} ${foundYear}`,
+        message:
+          'Do you mean Claim Status/Policy Status/Ticket Status/Insurance Policy/Crop Loss Intimation Status?',
+      });
+    } else {
+      results.push({
+        res: '',
+        message: 'Could not extract a valid keyword, season, or year.',
+      });
+    }
+
+    return results;
+  }
+
+  // Chatbot route
+  app.post('/chat', async (req, res) => {
+
+        //console.log("Env Key",process.env.OPENAI_API_KEY);
+      const { userInput } = req.body;
+
+      console.log("Organization",process.env.organization);
+      console.log("project",process.env.project);
+      if (!userInput) {
+        return res.status(400).send({ message: 'User input is required' });
+      }
+
+      try {
+        const prompt = `${userInput} `;
+        
+        console.log("Prompt",prompt);
+
+        // Call OpenAI API
+        const response = await openai.chat.completions.create({
+          model: process.env.Model_Name,  // Choose the GPT model
+          messages: [
+            { role: 'system', content: "You are an expert in Crop Insurance. Only respond as per trained data and to questions related to this field including topics like post-harvest losses, crop management, etc. If the question is not relevant with Crop Insurance then respond with: 'I can only assist with PMFBY Scheme & crop insurance-related inquiries'." },
+            { role: 'user', content: prompt },
+        ],
+          temperature:0,
+          max_tokens : 100
+        });
+
+        //console.log("Response",response)
+        const botResponse = response.choices[0].message.content;
+        
+        console.log("Status","Success");
+        res.status(200).json({ response: botResponse });
+      } catch (error) {
+        console.error('Error with OpenAI API:', error.message);
+        res.status(500).send({ error: 'An error occurred with the OpenAI API' });
+      }
+    });
 
   /**
  * @swagger
@@ -754,18 +761,18 @@ app.post('/chat', async (req, res) => {
  *                   example: "Invalid input. Please provide a query."
  */
     // API endpoint to process input
-app.post('/api/v2/GetIntent', (req, res) => {
-  const { query } = req.body;
+  app.post('/api/v2/GetIntent', (req, res) => {
+    const { query } = req.body;
 
-  if (!query || typeof query !== 'string') {
-    return res.status(400).json({ error: 'Invalid input. Please provide a query.' });
-  }
+    if (!query || typeof query !== 'string') {
+      return res.status(400).json({ error: 'Invalid input. Please provide a query.' });
+    }
 
-  const results = extractDetails(query);
-  res.json(results);
-});
+    const results = extractDetails(query);
+    res.json(results);
+  });
 
-/**
+  /**
  * @swagger
  * /api/v2/chat:
  *   post:
@@ -822,28 +829,47 @@ app.post('/api/v2/GetIntent', (req, res) => {
  *                   example: "An error occurred while processing your request."
  */
 
-// Define the API endpoint
-app.post('/api/v2/chat', async (req, res) => {
-  try {
-    const { query } = req.body;
+  // Define the API endpoint
+  app.post('/api/v2/chat', async (req, res) => {
+    try {
+      const { query,lang } = req.body;
 
-    if (!query) {
-      return res.status(400).json({ error: 'Query is required.' });
+      if (!query) {
+        return res.status(400).json({ error: 'Query is required.' });
+      }
+
+ 
+
+     const englishVersion = await translateText(query || 'I can only assist with PMFBY Scheme & crop insurance-related inquiries.', 'en');
+     
+     console.log("English Version",englishVersion);
+
+     // Process the user query with the NLP manager
+     const response = await manager.process('en', englishVersion);
+ 
+       // Translate the response to the detected language if not English
+     if (lang !== 'en') {
+         
+      const translatedAnswer = await translateText(response.answer || 'I can only assist with PMFBY Scheme & crop insurance-related inquiries.', lang);
+
+         return res.json({
+          question: query,
+           originalAnswer: response.answer,
+           answer:translatedAnswer,
+           lang,
+         });
+     }
+
+      // Respond with the chatbot's answer
+      res.json({
+        question: query,
+        answer: response.answer || 'I can only assist with PMFBY Scheme & crop insurance-related inquiries.',
+      });
+    } catch (error) {
+      console.error('Error processing query:', error);
+      res.status(500).json({ error: 'An error occurred while processing your request.' });
     }
-
-    // Process the user query with the NLP manager
-    const response = await manager.process('en', query);
-
-    // Respond with the chatbot's answer
-    res.json({
-      question: query,
-      answer: response.answer || 'I can only assist with PMFBY Scheme & crop insurance-related inquiries.',
-    });
-  } catch (error) {
-    console.error('Error processing query:', error);
-    res.status(500).json({ error: 'An error occurred while processing your request.' });
-  }
-});
+  });
 
   app.listen(port, () => {
     console.log(`Chatbot server running on http://localhost:${port}`);
