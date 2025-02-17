@@ -186,6 +186,7 @@ manager.addAnswer(
 // Post-Harvesting
 manager.addDocument('en', 'What is post-harvest coverage under PMFBY?', 'pmfby.postHarvest');
 manager.addDocument('en', 'Does PMFBY cover losses during the post-harvest stage?', 'pmfby.postHarvest');
+manager.addDocument('en', 'What is post harvesting?', 'pmfby.postHarvest');
 manager.addDocument('en', 'How can farmers file claims for post-harvest losses?', 'pmfby.postHarvest');
 manager.addDocument('en', 'What types of risks are covered in the post-harvest stage?', 'pmfby.postHarvest');
 manager.addAnswer(
