@@ -6,8 +6,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { OpenAI  } = require('openai');
 const translate = require('google-translate-api-x');
-const DetectLanguage = require('detectlanguage');
-const cld3  = require('cld3-asm');
+//const DetectLanguage = require('detectlanguage');
+//const cld3  = require('cld3-asm');
 
 const app = express();
 const swaggerJsDoc = require('swagger-jsdoc');
@@ -130,6 +130,7 @@ manager.addAnswer(
 
 // Add-On Coverage
 manager.addDocument('en', 'What is the add-on coverage for wild animal attacks under PMFBY?', 'pmfby.wildAnimals');
+manager.addDocument('en', 'Add-on coverage under PMFBY?', 'pmfby.wildAnimals');
 manager.addAnswer(
   'en',
   'pmfby.wildAnimals',
@@ -838,9 +839,7 @@ app.use(bodyParser.json());
         return res.status(400).json({ error: 'Query is required.' });
       }
 
- 
-
-     const englishVersion = await translateText(query || 'I can only assist with PMFBY Scheme & crop insurance-related inquiries.', 'en');
+      const englishVersion = await translateText(query || 'I can only assist with PMFBY Scheme & crop insurance-related inquiries.', 'en');
      
      console.log("English Version",englishVersion);
 
