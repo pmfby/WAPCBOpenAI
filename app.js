@@ -204,6 +204,63 @@ manager.addAnswer(
   'Under PMFBY, the entire sum insured is payable for post-harvest losses, subject to the terms and conditions of the scheme.'
 );
 
+// Coverage of Crops
+manager.addDocument('en', 'Which crops are covered under PMFBY?', 'pmfby.coverageCrops');
+manager.addAnswer(
+  'en',
+  'pmfby.coverageCrops',
+  'PMFBY covers all food crops (cereals, pulses, and oilseeds), commercial crops (cotton, sugarcane, etc.), and horticultural crops as per state government notification.'
+);
+
+// Seasonality Discipline
+manager.addDocument('en', 'What is seasonality discipline under PMFBY?', 'pmfby.seasonality');
+manager.addAnswer(
+  'en',
+  'pmfby.seasonality',
+  'Seasonality discipline under PMFBY ensures adherence to prescribed timelines for premium payments, enrollment, and claim settlements based on crop seasons.'
+);
+
+// Important Conditions/Clauses
+manager.addDocument('en', 'What are the important conditions applicable for risk coverage under PMFBY?', 'pmfby.importantClauses');
+manager.addAnswer(
+  'en',
+  'pmfby.importantClauses',
+  'Important conditions include mandatory coverage for loanee farmers, adherence to cut-off dates, timely premium payment, and compliance with yield estimation procedures.'
+);
+
+// Claim Settlement under Multiple Events
+manager.addDocument('en', 'How are claims settled under multiple events of similar or different perils in PMFBY?', 'pmfby.claimMultipleEvents');
+manager.addAnswer(
+  'en',
+  'pmfby.claimMultipleEvents',
+  'Claims under multiple events are assessed based on the maximum loss percentage, ensuring that total claims do not exceed the sum insured for the season.'
+);
+
+// Service Charges
+manager.addDocument('en', 'Are there any service charges applicable under PMFBY?', 'pmfby.serviceCharges');
+manager.addAnswer(
+  'en',
+  'pmfby.serviceCharges',
+  'No service charges are applicable for farmers. However, intermediaries like banks or CSCs may charge nominal service fees for enrollment processing.'
+);
+
+// Goods & Service Tax (GST)
+manager.addDocument('en', 'Is GST applicable on PMFBY premiums?', 'pmfby.gst');
+manager.addAnswer(
+  'en',
+  'pmfby.gst',
+  'No, GST is exempted on the premium paid under PMFBY to ensure affordability for farmers.'
+);
+
+// Assessment of Loss/Shortfall in Yield
+manager.addDocument('en', 'How is loss or shortfall in yield assessed under PMFBY?', 'pmfby.lossAssessment');
+manager.addAnswer(
+  'en',
+  'pmfby.lossAssessment',
+  'Loss assessment is based on Crop Cutting Experiments (CCEs) conducted by state authorities using a statistically designed methodology.'
+);
+
+
 // Fallback for unrelated questions
 manager.addAnswer(
   'en',
