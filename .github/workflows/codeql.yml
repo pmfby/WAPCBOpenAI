@@ -23,10 +23,10 @@ jobs:
       matrix:
         include:
           - language: javascript-typescript
-            build-mode: automatic
+            build-mode: autobuild
           # Add more languages if needed
           # - language: python
-          #   build-mode: automatic
+          #   build-mode: autobuild
 
     steps:
       - name: Checkout repository
